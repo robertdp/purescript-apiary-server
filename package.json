@@ -1,0 +1,30 @@
+{
+  "name": "purescript-apiary-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "purescript": "^0.13.5",
+    "purescript-psa": "^0.7.3",
+    "purty": "^4.5.2",
+    "spago": "^0.13.0"
+  },
+  "scripts": {
+    "build": "spago build && npm run docs",
+    "docs": "spago docs --format markdown"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/robertdp/purescript-apiary-server.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/robertdp/purescript-apiary-server/issues"
+  },
+  "homepage": "https://github.com/robertdp/purescript-apiary-server#readme"
+}
