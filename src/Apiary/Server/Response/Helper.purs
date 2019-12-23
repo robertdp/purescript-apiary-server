@@ -1,7 +1,6 @@
 module Apiary.Server.Response.Helper where
 
 import Prelude
-
 import Apiary.Media (class EncodeMedia, class MediaType)
 import Apiary.Route (class PrepareSpec, Route)
 import Apiary.Server.Response (FullResponse, respondWithMedia)

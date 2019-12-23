@@ -1,7 +1,6 @@
 module Apiary.Server.Url where
 
 import Prelude
-
 import Apiary.Url as Url
 import Control.Alt ((<|>))
 import Control.Monad.Error.Class (throwError)

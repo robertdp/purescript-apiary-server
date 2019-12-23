@@ -1,7 +1,6 @@
 module Apiary.Server where
 
 import Prelude
-
 import Apiary.Media (JSON)
 import Apiary.Server.Request (class DecodeRequest, Request)
 import Apiary.Server.Request as Request
