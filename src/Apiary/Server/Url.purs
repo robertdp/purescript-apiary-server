@@ -1,7 +1,8 @@
 module Apiary.Server.Url where
 
 import Prelude
-import Apiary.Url (class UrlParam, decodeUrlParam, encodeUrlParam)
+
+import Apiary.Url as Url
 import Control.Alt ((<|>))
 import Control.Monad.Error.Class (throwError)
 import Data.Array as Array
@@ -57,7 +58,7 @@ instance readPathParamsCons ::
   , ReadPathParams params' paramList
   , IsSymbol name
   , Lacks name params'
-  , UrlParam value
+  , Url.DecodeParam value
   ) =>
   ReadPathParams params (Cons name value paramList) where
   readPathParams _ params = do
@@ -65,7 +66,7 @@ instance readPathParamsCons ::
     let
       name = reflectSymbol (SProxy :: _ name)
     value <- case Object.lookup name params of
-      Just a -> decodeUrlParam a
+      Just a -> Url.decodeParam a
       Nothing ->
         throwError $ pure $ ErrorAtProperty name
           $ ForeignError "invalid path param"
@@ -79,7 +80,7 @@ instance decodeQueryParamsNil :: DecodeQueryParams () Nil where
 
 instance decodeQueryParamsConsArray ::
   ( IsSymbol name
-  , UrlParam value
+  , Url.DecodeParam value
   , Cons name (Array value) params' params
   , Lacks name params'
   , DecodeQueryParams params' paramList
@@ -89,17 +90,17 @@ instance decodeQueryParamsConsArray ::
     let
       name = SProxy :: _ name
 
-      prop = encodeUrlParam $ reflectSymbol name
+      prop = Url.encodeParam $ reflectSymbol name
     builder <- decodeQueryParams (RLProxy :: _ paramList) params
     value <- case Object.lookup prop params of
       Nothing -> pure []
       Just a -> do
         values <- read' a <|> Array.singleton <$> read' a
-        sequence $ decodeUrlParam <$> values
+        sequence $ Url.decodeParam <$> values
     pure $ Builder.insert name value <<< builder
 else instance decodeQueryParamsCons ::
   ( IsSymbol name
-  , UrlParam value
+  , Url.DecodeParam value
   , Cons name (Maybe value) params' params
   , Lacks name params'
   , DecodeQueryParams params' paramList
@@ -109,11 +110,11 @@ else instance decodeQueryParamsCons ::
     let
       name = SProxy :: _ name
 
-      prop = encodeUrlParam $ reflectSymbol name
+      prop = Url.encodeParam $ reflectSymbol name
     builder <- decodeQueryParams (RLProxy :: _ paramList) params
     value <- case Object.lookup prop params of
       Nothing -> pure Nothing
       Just a -> do
         str <- read' a
-        Just <$> decodeUrlParam str
+        Just <$> Url.decodeParam str
     pure $ Builder.insert name value <<< builder

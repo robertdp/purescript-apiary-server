@@ -5,7 +5,7 @@ You can edit this file as you like.
 { name =
     "apiary-server"
 , dependencies =
-    [ "avar", "indexed-monad", "media-types", "milkis", "node-http", "simple-json" ]
+    [ "apiary-client", "avar", "indexed-monad", "node-http" ]
 , packages =
     ./packages.dhall
 , sources =
