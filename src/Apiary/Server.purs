@@ -3,7 +3,7 @@ module Apiary.Server where
 import Prelude
 
 import Apiary.Media (JSON)
-import Apiary.Server.Request (class DecodeRequest, Request, decodeRequest)
+import Apiary.Server.Request (class DecodeRequest, Request)
 import Apiary.Server.Request as Request
 import Apiary.Server.Response (FullResponse)
 import Apiary.Server.Response as Response
@@ -46,7 +46,7 @@ makeHandler route handler = Handler { route, handler: routerHandler }
       responder = buildResponder route (Proxy2 :: _ m)
 
       updateHeaders = _ { headers = HTTP.requestHeaders httpRequest }
-    decodeRequest route pathParams queryParams requestBody
+    Request.decodeRequest route pathParams queryParams requestBody
       # runExcept
       # case _ of
           Right request -> Response.runResponse (handler (updateHeaders request) responder) httpResponse
