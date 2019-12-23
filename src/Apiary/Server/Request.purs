@@ -1,7 +1,7 @@
 module Apiary.Server.Request where
 
 import Prelude
-import Apiary.Media (class MediaCodec, decodeMedia)
+import Apiary.Media (class DecodeMedia, decodeMedia)
 import Apiary.Route (class PrepareSpec, Route)
 import Apiary.Server.Url (class ReadParams, PathParams, QueryParams, readParams)
 import Data.Either (Either(..), either)
@@ -41,7 +41,7 @@ instance decodeRequestRoute ::
       , response :: response
       }
   , ReadParams params query fullParams
-  , MediaCodec body body'
+  , DecodeMedia body body'
   ) =>
   DecodeRequest (Route path method spec) fullParams body' where
   decodeRequest _ pathParams queryParams requestBody = do

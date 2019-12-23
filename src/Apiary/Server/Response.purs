@@ -19,7 +19,7 @@ module Apiary.Server.Response
   ) where
 
 import Prelude
-import Apiary.Media (class MediaCodec, encodeMedia, mediaType)
+import Apiary.Media (class EncodeMedia, class MediaType, encodeMedia, mediaType)
 import Apiary.Status (Status(..))
 import Control.Applicative.Indexed (class IxApplicative, iapply, imap, ipure)
 import Control.Apply.Indexed (class IxApply)
@@ -155,7 +155,8 @@ send str =
 
 respondWithMedia ::
   forall m rep a.
-  MediaCodec rep a =>
+  MediaType rep =>
+  EncodeMedia rep a =>
   MonadEffect m =>
   Status ->
   Proxy rep ->

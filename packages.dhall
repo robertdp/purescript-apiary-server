@@ -133,16 +133,7 @@ let additions =
       , repo =
           "https://github.com/robertdp/purescript-apiary.git"
       , version =
-          "HEAD"
-      }
-  , apiary-client =
-      { dependencies =
-          [ "apiary"
-          ]
-      , repo =
-          "https://github.com/robertdp/purescript-apiary-client.git"
-      , version =
-          "HEAD"
+          "master"
       }
   }
 

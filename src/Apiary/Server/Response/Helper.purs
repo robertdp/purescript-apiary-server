@@ -1,7 +1,8 @@
 module Apiary.Server.Response.Helper where
 
 import Prelude
-import Apiary.Media (class MediaCodec)
+
+import Apiary.Media (class EncodeMedia, class MediaType)
 import Apiary.Route (class PrepareSpec, Route)
 import Apiary.Server.Response (FullResponse, respondWithMedia)
 import Apiary.Status (class ResponseStatus, toStatus)
@@ -40,7 +41,8 @@ instance buildResponderRecordNil :: BuildResponderRecord Nil m () where
 instance buildResponderRecordCons ::
   ( IsSymbol status
   , ResponseStatus status
-  , MediaCodec responseRep response
+  , MediaType responseRep
+  , EncodeMedia responseRep response
   , MonadEffect m
   , Lacks status responders'
   , Cons status (response -> FullResponse m) responders' responders

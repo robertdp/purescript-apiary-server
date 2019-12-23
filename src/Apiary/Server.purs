@@ -1,6 +1,8 @@
 module Apiary.Server where
 
 import Prelude
+
+import Apiary.Media (JSON)
 import Apiary.Server.Request (class DecodeRequest, Request, decodeRequest)
 import Apiary.Server.Request as Request
 import Apiary.Server.Response (FullResponse)
@@ -10,7 +12,6 @@ import Apiary.Server.Router (class AttachToRouter, Router)
 import Apiary.Server.Router as Router
 import Apiary.Server.Url (PathParams)
 import Apiary.Status as Status
-import Apiary.Types (JSON)
 import Control.Monad.Except (runExcept)
 import Data.Array.NonEmpty as Array
 import Data.Either (Either(..))
