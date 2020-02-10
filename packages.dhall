@@ -119,22 +119,16 @@ let additions =
 
 
 let upstream =
-      https://github.com/purescript/package-sets/releases/download/psc-0.13.5-20191215/packages.dhall sha256:fdc5d54cd54213000100fbc13c90dce01668a73fe528d8662430558df3411bee
+      https://github.com/purescript/package-sets/releases/download/psc-0.13.6-20200127/packages.dhall sha256:06a623f48c49ea1c7675fdf47f81ddb02ae274558e29f511efae1df99ea92fb8
 
 let overrides = {=}
 
 let additions =
-  { apiary =
-      { dependencies =
-          [ "media-types"
-          , "milkis"
-          , "simple-json"
-          ]
-      , repo =
-          "https://github.com/robertdp/purescript-apiary.git"
-      , version =
-          "master"
+      { apiary =
+          { dependencies = [ "media-types", "milkis", "simple-json" ]
+          , repo = "https://github.com/robertdp/purescript-apiary.git"
+          , version = "master"
+          }
       }
-  }
 
 in  upstream // overrides // additions
