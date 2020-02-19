@@ -7,8 +7,9 @@ import Control.Monad.Error.Class (throwError)
 import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Traversable (sequence)
-import Foreign (F, Foreign, ForeignError(..))
+import Data.Traversable (traverse)
+import Data.Unfoldable (class Unfoldable)
+import Foreign (F, Foreign, ForeignError(..), fail)
 import Foreign.Object (Object)
 import Foreign.Object as Object
 import Prim.Row (class Cons, class Lacks, class Union)
@@ -80,11 +81,12 @@ instance decodeQueryParamsNil :: DecodeQueryParams () Nil where
 instance decodeQueryParamsConsArray ::
   ( IsSymbol name
   , Url.DecodeParam value
-  , Cons name (Array value) params' params
+  , Unfoldable f
+  , Cons name (f value) params' params
   , Lacks name params'
   , DecodeQueryParams params' paramList
   ) =>
-  DecodeQueryParams params (Cons name (Array value) paramList) where
+  DecodeQueryParams params (Cons name (f value) paramList) where
   decodeQueryParams _ params = do
     let
       name = SProxy :: _ name
@@ -95,12 +97,12 @@ instance decodeQueryParamsConsArray ::
       Nothing -> pure []
       Just a -> do
         values <- read' a <|> Array.singleton <$> read' a
-        sequence $ Url.decodeParam <$> values
-    pure $ Builder.insert name value <<< builder
+        traverse Url.decodeParam values
+    pure $ Builder.insert name (Array.toUnfoldable value) <<< builder
 else instance decodeQueryParamsCons ::
   ( IsSymbol name
   , Url.DecodeParam value
-  , Cons name (Maybe value) params' params
+  , Cons name value params' params
   , Lacks name params'
   , DecodeQueryParams params' paramList
   ) =>
@@ -112,8 +114,7 @@ else instance decodeQueryParamsCons ::
       prop = Url.encodeParam $ reflectSymbol name
     builder <- decodeQueryParams (RLProxy :: _ paramList) params
     value <- case Object.lookup prop params of
-      Nothing -> pure Nothing
+      Nothing -> fail $ ErrorAtProperty prop $ ForeignError "missing query param"
       Just a -> do
-        str <- read' a
-        Just <$> Url.decodeParam str
+        Url.decodeParam =<< read' a
     pure $ Builder.insert name value <<< builder
