@@ -27,8 +27,6 @@ import Control.Bind.Indexed (class IxBind, ibind)
 import Control.Monad.Error.Class (class MonadError, class MonadThrow, catchError, throwError)
 import Control.Monad.Indexed (class IxMonad)
 import Control.Monad.Indexed.Qualified (apply, bind, discard, map, pure) as Ix
-import Control.Monad.Indexed.Trans (class IxMonadTrans)
-import Control.Monad.Indexed.Trans.Qualified (lift) as Ix
 import Data.Foldable (class Foldable, traverse_)
 import Data.Functor.Indexed (class IxFunctor)
 import Data.MediaType (MediaType)
@@ -64,9 +62,6 @@ instance ixBindResponse :: Monad m => IxBind (Response m) where
         Response k -> k res
 
 instance ixMonadResponse :: Monad m => IxMonad (Response m)
-
-instance ixMonadTransResponse :: IxMonadTrans Response where
-  ilift ma = Response \_ -> ma
 
 instance functorResponse :: Monad m => Functor (Response m x x) where
   map = imap
