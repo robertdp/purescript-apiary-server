@@ -19,7 +19,6 @@ import Record.Builder (Builder)
 import Record.Builder as Builder
 import Simple.JSON (read')
 import Type.Data.RowList (RLProxy(..))
-import Type.Proxy (Proxy)
 
 type PathParams
   = Object String
@@ -28,7 +27,7 @@ type QueryParams
   = Object Foreign
 
 class ReadParams pathParams queryParams params | pathParams queryParams -> params where
-  readParams :: Proxy pathParams -> Proxy queryParams -> PathParams -> QueryParams -> F params
+  readParams :: forall proxy. proxy pathParams -> proxy queryParams -> PathParams -> QueryParams -> F params
 
 instance readParamsRecord ::
   ( Union pathParams queryParams mergedParams
@@ -47,8 +46,8 @@ instance readParamsRecord ::
       query = Builder.build queryBuilder {}
     pure $ Record.union path query
 
-class ReadPathParams (params :: #Type) (paramList :: RowList) | paramList -> params where
-  readPathParams :: RLProxy paramList -> PathParams -> F (Builder {} (Record params))
+class ReadPathParams (params :: # Type) (paramList :: RowList) | paramList -> params where
+  readPathParams :: forall proxy. proxy paramList -> PathParams -> F (Builder {} (Record params))
 
 instance readPathParamsNil :: ReadPathParams () Nil where
   readPathParams _ _ = pure identity
@@ -72,8 +71,8 @@ instance readPathParamsCons ::
           $ ForeignError "invalid path param"
     pure $ builder >>> Builder.insert (SProxy :: _ name) value
 
-class DecodeQueryParams params paramList | paramList -> params where
-  decodeQueryParams :: RLProxy paramList -> QueryParams -> F (Builder {} (Record params))
+class DecodeQueryParams (params :: # Type) (paramList :: RowList) | paramList -> params where
+  decodeQueryParams :: forall proxy. proxy paramList -> QueryParams -> F (Builder {} (Record params))
 
 instance decodeQueryParamsNil :: DecodeQueryParams () Nil where
   decodeQueryParams _ _ = pure identity

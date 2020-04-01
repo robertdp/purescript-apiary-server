@@ -14,8 +14,8 @@ import Record.Builder as Builder
 import Type.Data.RowList (RLProxy(..))
 import Type.Proxy (Proxy(..), Proxy2(..))
 
-class BuildResponder route m responder | route m -> responder where
-  buildResponder :: route -> Proxy2 m -> responder
+class BuildResponder route (m :: Type -> Type) responder | route m -> responder where
+  buildResponder :: forall proxy2. route -> proxy2 m -> responder
 
 instance buildResponders ::
   ( PrepareSpec
@@ -31,8 +31,8 @@ instance buildResponders ::
   BuildResponder (Route method path spec) m { | responders } where
   buildResponder _ _ = Builder.build (buildResponderRecord (RLProxy :: _ responseList) (Proxy2 :: _ m)) {}
 
-class BuildResponderRecord (responses :: RowList) (m :: Type -> Type) (responders :: #Type) | responses m -> responders where
-  buildResponderRecord :: RLProxy responses -> Proxy2 m -> Builder {} { | responders }
+class BuildResponderRecord (responses :: RowList) (m :: Type -> Type) (responders :: # Type) | responses m -> responders where
+  buildResponderRecord :: forall proxy proxy2. proxy responses -> proxy2 m -> Builder {} { | responders }
 
 instance buildResponderRecordNil :: BuildResponderRecord Nil m () where
   buildResponderRecord _ _ = identity
