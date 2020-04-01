@@ -4,7 +4,7 @@
 
 ``` purescript
 class DecodeMedia rep a | rep -> a where
-  decodeMedia :: Proxy rep -> String -> F a
+  decodeMedia :: forall proxy. proxy rep -> String -> F a
 ```
 
 ##### Instances
@@ -18,7 +18,7 @@ DecodeMedia String String
 
 ``` purescript
 class EncodeMedia rep a | rep -> a where
-  encodeMedia :: Proxy rep -> a -> String
+  encodeMedia :: forall proxy. proxy rep -> a -> String
 ```
 
 ##### Instances
@@ -32,7 +32,7 @@ EncodeMedia String String
 
 ``` purescript
 class MediaType rep  where
-  mediaType :: Proxy rep -> Maybe MediaType
+  mediaType :: forall proxy. proxy rep -> Maybe MediaType
 ```
 
 ##### Instances
@@ -53,28 +53,6 @@ data JSON a
 MediaType (JSON a)
 (WriteForeign a) => EncodeMedia (JSON a) a
 (ReadForeign a) => DecodeMedia (JSON a) a
-```
-
-#### `None`
-
-``` purescript
-data None :: Type
-```
-
-##### Instances
-``` purescript
-Show None
-Semigroup None
-Monoid None
-MediaType None
-EncodeMedia None None
-DecodeMedia None None
-```
-
-#### `none`
-
-``` purescript
-none :: None
 ```
 
 

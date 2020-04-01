@@ -3,8 +3,8 @@
 #### `BuildResponder`
 
 ``` purescript
-class BuildResponder route m responder | route m -> responder where
-  buildResponder :: route -> Proxy2 m -> responder
+class BuildResponder route (m :: Type -> Type) responder | route m -> responder where
+  buildResponder :: forall proxy2. route -> proxy2 m -> responder
 ```
 
 ##### Instances
@@ -16,7 +16,7 @@ class BuildResponder route m responder | route m -> responder where
 
 ``` purescript
 class BuildResponderRecord (responses :: RowList) (m :: Type -> Type) (responders :: # Type) | responses m -> responders where
-  buildResponderRecord :: RLProxy responses -> Proxy2 m -> Builder (Record ()) (Record responders)
+  buildResponderRecord :: forall proxy proxy2. proxy responses -> proxy2 m -> Builder (Record ()) (Record responders)
 ```
 
 ##### Instances

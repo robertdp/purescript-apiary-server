@@ -14,7 +14,6 @@ newtype Response m from to a
 (Monad m) => IxApplicative (Response m)
 (Monad m) => IxBind (Response m)
 (Monad m) => IxMonad (Response m)
-IxMonadTrans Response
 (Monad m) => Functor (Response m x x)
 (Monad m) => Apply (Response m x x)
 (Monad m) => Applicative (Response m x x)
@@ -147,13 +146,5 @@ bind :: forall m a b x y z. IxMonad m => m x y a -> (a -> m y z b) -> m x z b
 
 ``` purescript
 apply :: forall m a b x y z. IxApply m => m x y (a -> b) -> m y z a -> m x z b
-```
-
-### Re-exported from Control.Monad.Indexed.Trans.Qualified:
-
-#### `lift`
-
-``` purescript
-lift :: forall m i a t. IxMonadTrans t => Monad m => m a -> t m i i a
 ```
 

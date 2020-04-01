@@ -3,7 +3,7 @@
 #### `makeRequest`
 
 ``` purescript
-makeRequest :: forall route params body rep response. BuildRequest route params body rep => DecodeResponse rep response => route -> (Request -> Request) -> params -> body -> Aff (Either Error response)
+makeRequest :: forall route params query body rep response. BuildRequest route params query body rep => DecodeResponse rep response => route -> (Request -> Request) -> params -> query -> body -> Aff (Either Error response)
 ```
 
 #### `fetch`
@@ -32,8 +32,8 @@ type Request = { body :: String, headers :: Headers, method :: Method, url :: UR
 ``` purescript
 data Error
   = RuntimeError Error
-  | DecodeError MultipleErrors Response
-  | UnexpectedResponse Response
+  | DecodeError Request Response MultipleErrors
+  | UnexpectedResponse Request Response
 ```
 
 ##### Instances

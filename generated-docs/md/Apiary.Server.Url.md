@@ -16,7 +16,7 @@ type QueryParams = Object Foreign
 
 ``` purescript
 class ReadParams pathParams queryParams params | pathParams queryParams -> params where
-  readParams :: Proxy pathParams -> Proxy queryParams -> PathParams -> QueryParams -> F params
+  readParams :: forall proxy. proxy pathParams -> proxy queryParams -> PathParams -> QueryParams -> F params
 ```
 
 ##### Instances
@@ -28,7 +28,7 @@ class ReadParams pathParams queryParams params | pathParams queryParams -> param
 
 ``` purescript
 class ReadPathParams (params :: # Type) (paramList :: RowList) | paramList -> params where
-  readPathParams :: RLProxy paramList -> PathParams -> F (Builder (Record ()) (Record params))
+  readPathParams :: forall proxy. proxy paramList -> PathParams -> F (Builder (Record ()) (Record params))
 ```
 
 ##### Instances
@@ -40,15 +40,15 @@ ReadPathParams () Nil
 #### `DecodeQueryParams`
 
 ``` purescript
-class DecodeQueryParams params paramList | paramList -> params where
-  decodeQueryParams :: RLProxy paramList -> QueryParams -> F (Builder (Record ()) (Record params))
+class DecodeQueryParams (params :: # Type) (paramList :: RowList) | paramList -> params where
+  decodeQueryParams :: forall proxy. proxy paramList -> QueryParams -> F (Builder (Record ()) (Record params))
 ```
 
 ##### Instances
 ``` purescript
 DecodeQueryParams () Nil
-(IsSymbol name, DecodeParam value, Cons name (Array value) params' params, Lacks name params', DecodeQueryParams params' paramList) => DecodeQueryParams params (Cons name (Array value) paramList)
-(IsSymbol name, DecodeParam value, Cons name (Maybe value) params' params, Lacks name params', DecodeQueryParams params' paramList) => DecodeQueryParams params (Cons name value paramList)
+(IsSymbol name, DecodeParam value, Unfoldable f, Cons name (f value) params' params, Lacks name params', DecodeQueryParams params' paramList) => DecodeQueryParams params (Cons name (f value) paramList)
+(IsSymbol name, DecodeParam value, Cons name value params' params, Lacks name params', DecodeQueryParams params' paramList) => DecodeQueryParams params (Cons name value paramList)
 ```
 
 
