@@ -1,12 +1,12 @@
 module Ads.Server.Main where
 
 import Prelude
-import Example.Server.EchoTest (echoTestHandler)
-import Apiary.Server as Server
+import Apiary.Server.Handler as Server
 import Apiary.Server.Router as Router
 import Data.Maybe (Maybe(..))
 import Effect (Effect)
 import Effect.Class.Console as Console
+import Example.Server.EchoTest (echoTestHandler)
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream

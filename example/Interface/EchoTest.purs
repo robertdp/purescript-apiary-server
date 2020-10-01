@@ -1,11 +1,10 @@
 module Example.Interface.EchoTest where
 
-import Apiary.Route (GET)
-import Apiary.Types (JSON)
+import Apiary (GET, JSON)
 
 type EchoTest
   = GET "/echo/:first/:last"
-      { params ::
+      { path ::
           { first :: String
           , last :: String
           }

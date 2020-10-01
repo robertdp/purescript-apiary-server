@@ -19,7 +19,7 @@ module Apiary.Server.Response
   ) where
 
 import Prelude
-import Apiary.Media (class EncodeMedia, class MediaType, encodeMedia, mediaType)
+import Apiary (class EncodeMedia, class MediaType, encodeMedia, mediaType)
 import Apiary.Status (Status(..))
 import Control.Applicative.Indexed (class IxApplicative, iapply, imap, ipure)
 import Control.Apply.Indexed (class IxApply)

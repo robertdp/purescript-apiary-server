@@ -1,13 +1,13 @@
 module Example.Server.EchoTest where
 
 import Prelude
-import Example.Interface.EchoTest (EchoTest)
 import Apiary.Route (Route(..))
-import Apiary.Server (Handler)
-import Apiary.Server as Server
+import Apiary.Server.Handler (Handler)
+import Apiary.Server.Handler as Handler
 import Effect.Aff (Aff)
+import Example.Interface.EchoTest (EchoTest)
 
 echoTestHandler :: Handler Aff EchoTest
 echoTestHandler =
-  Server.makeHandler Route \request respond -> Response.do
-    respond.ok { message: "Echo: " <> request.params.first <> " " <> request.params.last }
+  Handler.makeHandler Route \request respond -> Server.do
+    respond.ok { message: "Echo: " <> request.path.first <> " " <> request.path.last }

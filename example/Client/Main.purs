@@ -15,7 +15,7 @@ main =
     for_ res
       $ match
           { ok:
-            \{ message } -> do
-              Console.log "Success!"
-              Console.log message
+              \{ message } -> do
+                Console.log "Success!"
+                Console.log message
           }
