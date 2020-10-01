@@ -5,7 +5,7 @@
 /generated-docs/*
 !/generated-docs/md/
 /generated-docs/md/*
-!/generated-docs/md/Apiary.*
+!/generated-docs/md/Apiary.Server.*
 /.psc-package/
 /.psc*
 /.purs*
