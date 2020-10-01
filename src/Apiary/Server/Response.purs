@@ -21,11 +21,11 @@ module Apiary.Server.Response
 import Prelude
 import Apiary (class EncodeMedia, class MediaType, encodeMedia, mediaType)
 import Apiary.Status (Status(..))
-import Control.Applicative.Indexed (class IxApplicative, iapply, imap, ipure)
+import Control.Applicative.Indexed (class IxApplicative)
 import Control.Apply.Indexed (class IxApply)
-import Control.Bind.Indexed (class IxBind, ibind)
+import Control.Bind.Indexed (class IxBind)
 import Control.Monad.Error.Class (class MonadError, class MonadThrow, catchError, throwError)
-import Control.Monad.Indexed (class IxMonad)
+import Control.Monad.Indexed (class IxMonad, iap)
 import Control.Monad.Indexed.Qualified (apply, bind, discard, map, pure) as Ix
 import Data.Foldable (class Foldable, traverse_)
 import Data.Functor.Indexed (class IxFunctor)
@@ -37,6 +37,7 @@ import Effect.Class (class MonadEffect, liftEffect)
 import Node.Encoding as Encoding
 import Node.HTTP as HTTP
 import Node.Stream as Stream
+import Type.Equality (class TypeEquals)
 import Type.Proxy (Proxy)
 
 newtype Response m from to a
@@ -46,47 +47,43 @@ runResponse :: forall m from to a. Response m from to a -> HTTP.Response -> m a
 runResponse (Response f) = f
 
 instance ixFunctorResponse :: Monad m => IxFunctor (Response m) where
-  imap f a = Response \res -> map f (runResponse a res)
+  imap f (Response run) = Response \res -> map f (run res)
 
 instance ixApplyResponse :: Monad m => IxApply (Response m) where
-  iapply f a = Response \res -> apply (runResponse f res) (runResponse a res)
+  iapply = iap
 
 instance ixApplicativeResponse :: Monad m => IxApplicative (Response m) where
-  ipure a = Response \res -> pure a
+  ipure a = Response \_ -> pure a
 
 instance ixBindResponse :: Monad m => IxBind (Response m) where
-  ibind ma f =
-    Response \res -> do
-      a <- runResponse ma res
-      case f a of
-        Response k -> k res
+  ibind (Response ma) f = Response \res -> ma res >>= \a -> case f a of Response mb -> mb res
 
 instance ixMonadResponse :: Monad m => IxMonad (Response m)
 
-instance functorResponse :: Monad m => Functor (Response m x x) where
-  map = imap
+instance functorResponse :: (Monad m, TypeEquals x y) => Functor (Response m x y) where
+  map f (Response run) = Response \res -> map f (run res)
 
-instance applyResponse :: Monad m => Apply (Response m x x) where
-  apply = iapply
+instance applyResponse :: (Monad m, TypeEquals x y) => Apply (Response m x y) where
+  apply = ap
 
-instance applicativeResponse :: Monad m => Applicative (Response m x x) where
-  pure = ipure
+instance applicativeResponse :: (Monad m, TypeEquals x y) => Applicative (Response m x y) where
+  pure a = Response \_ -> pure a
 
-instance bindResponse :: Monad m => Bind (Response m x x) where
-  bind = ibind
+instance bindResponse :: (Monad m, TypeEquals x y) => Bind (Response m x y) where
+  bind (Response ma) f = Response \res -> ma res >>= \a -> case f a of Response mb -> mb res
 
-instance monadResponse :: Monad m => Monad (Response m x x)
+instance monadResponse :: (Monad m, TypeEquals x y) => Monad (Response m x y)
 
-instance monadEffectResponse :: MonadEffect m => MonadEffect (Response m x x) where
+instance monadEffectResponse :: (MonadEffect m, TypeEquals x y) => MonadEffect (Response m x y) where
   liftEffect ma = Response \_ -> liftEffect ma
 
-instance monadAffResponse :: MonadAff m => MonadAff (Response m x x) where
+instance monadAffResponse :: (MonadAff m, TypeEquals x y) => MonadAff (Response m x y) where
   liftAff ma = Response \_ -> liftAff ma
 
-instance monadThrowResponse :: MonadThrow e m => MonadThrow e (Response m x x) where
+instance monadThrowResponse :: (MonadThrow e m, TypeEquals x y) => MonadThrow e (Response m x y) where
   throwError err = Response \_ -> throwError err
 
-instance monadErrorResponse :: MonadError e m => MonadError e (Response m x x) where
+instance monadErrorResponse :: (MonadError e m, TypeEquals x y) => MonadError e (Response m x y) where
   catchError ma f = Response \res -> catchError (runResponse ma res) (\err -> case f err of mb -> runResponse mb res)
 
 data StatusLineOpen
