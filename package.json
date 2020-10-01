@@ -6,7 +6,9 @@
   "directories": {
     "test": "test"
   },
-  "dependencies": {},
+  "dependencies": {
+    "find-my-way": "^3.0.4"
+  },
   "devDependencies": {
     "purescript": "^0.13.8",
     "purescript-psa": "^0.7.3",
