@@ -2,13 +2,9 @@ module Apiary.Server.Url where
 
 import Prelude
 import Apiary (class DecodeParam, None, decodeParam, encodeParam, none)
-import Control.Alt ((<|>))
 import Control.Monad.Error.Class (throwError)
-import Data.Array as Array
 import Data.Maybe (Maybe(..))
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
-import Data.Traversable (traverse)
-import Data.Unfoldable (class Unfoldable)
 import Foreign (F, Foreign, ForeignError(..), fail)
 import Foreign.Object (Object)
 import Foreign.Object as Object
@@ -81,12 +77,11 @@ instance decodeQueryParamsNil :: DecodeQueryParamsRecord () Nil where
 instance decodeQueryParamsConsFoldable ::
   ( IsSymbol name
   , DecodeParam value
-  , Unfoldable f
-  , Cons name (f value) params' params
+  , Cons name (Maybe value) params' params
   , Lacks name params'
   , DecodeQueryParamsRecord params' paramList
   ) =>
-  DecodeQueryParamsRecord params (Cons name (f value) paramList) where
+  DecodeQueryParamsRecord params (Cons name (Maybe value) paramList) where
   decodeQueryParamsRecordImpl _ params = do
     let
       name = SProxy :: _ name
@@ -94,11 +89,9 @@ instance decodeQueryParamsConsFoldable ::
       prop = encodeParam $ reflectSymbol name
     builder <- decodeQueryParamsRecordImpl (RLProxy :: _ paramList) params
     value <- case Object.lookup prop params of
-      Nothing -> pure []
-      Just a -> do
-        values <- read' a <|> Array.singleton <$> read' a
-        traverse decodeParam values
-    pure $ Builder.insert name (Array.toUnfoldable value) <<< builder
+      Nothing -> pure Nothing
+      Just a -> read' a >>= decodeParam >>> map Just
+    pure $ Builder.insert name value <<< builder
 else instance decodeQueryParamsCons ::
   ( IsSymbol name
   , DecodeParam value
