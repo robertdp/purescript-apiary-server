@@ -3,6 +3,7 @@ module Apiary.Server.Router where
 import Prelude
 import Apiary (Route)
 import Apiary.Server.Url (PathParams)
+import Control.Monad.Reader (ReaderT, ask, lift, runReaderT)
 import Data.Symbol (class IsSymbol, SProxy(..), reflectSymbol)
 import Effect (Effect)
 import Effect.Class (class MonadEffect, liftEffect)
@@ -10,28 +11,19 @@ import Effect.Uncurried (EffectFn1, EffectFn2, EffectFn3, EffectFn4, mkEffectFn2
 import Node.HTTP as HTTP
 
 newtype Router a
-  = Router (RouterInstance -> Effect a)
+  = Router (ReaderT RouterInstance Effect a)
 
-instance functorRouter :: Functor Router where
-  map f (Router a) = Router \r -> map f (a r)
+derive newtype instance functorRouter :: Functor Router
 
-instance applyRouter :: Apply Router where
-  apply (Router f) (Router a) = Router \r -> apply (f r) (a r)
+derive newtype instance applyRouter :: Apply Router
 
-instance applicativeRouter :: Applicative Router where
-  pure a = Router \_ -> pure a
+derive newtype instance applicativeRouter :: Applicative Router
 
-instance bindRouter :: Bind Router where
-  bind (Router ma) f =
-    Router \r -> do
-      a <- ma r
-      case f a of
-        Router mb -> mb r
+derive newtype instance bindRouter :: Bind Router
 
-instance monadRouter :: Monad Router
+derive newtype instance monadRouter :: Monad Router
 
-instance monadEffectRouter :: MonadEffect Router where
-  liftEffect eff = Router \_ -> eff
+derive newtype instance monadEffectRouter :: MonadEffect Router
 
 foreign import data RouterInstance :: Type
 
@@ -54,7 +46,7 @@ createServer ::
 createServer fallback (Router runRouter) =
   liftEffect do
     router <- create fallback
-    runRouter router
+    runReaderT runRouter router
     HTTP.createServer \req res -> do
       lookup req res router
 
@@ -74,7 +66,10 @@ on ::
   Path ->
   (HTTP.Request -> HTTP.Response -> PathParams -> Effect Unit) ->
   Router Unit
-on method path handler = Router \router -> runEffectFn4 _on router method path (mkEffectFn3 handler)
+on method path handler =
+  Router do
+    router <- ask
+    lift $ runEffectFn4 _on router method path (mkEffectFn3 handler)
 
 class AttachToRouter route where
   attachToRouter :: route -> (HTTP.Request -> HTTP.Response -> PathParams -> Effect Unit) -> Router Unit
